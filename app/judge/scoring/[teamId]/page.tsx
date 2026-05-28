@@ -141,7 +141,7 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
                   criteria={criteria.map(c => ({
                     _id: c._id.toString(),
                     name: c.name,
-                    description: c.description,
+                    description: c.description || "",
                     max: c.max,
                     weight: c.weight,
                     order: c.order,
