@@ -57,33 +57,30 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
   });
 
   return (
-    <div className="min-h-screen bg-[#07070f] text-white p-6 md:p-12 font-sans relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-900/10 blur-[120px] pointer-events-none" />
-      
-      <div className="max-w-5xl mx-auto relative z-10 space-y-8 animate-fade-in">
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-6 md:p-12 font-sans overflow-hidden">
+      <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
         
         {/* Header */}
         <div>
-          <Link href="/judge" className="inline-flex items-center gap-2 text-zinc-400 hover:text-white transition-colors mb-6 group">
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <Link href="/judge" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors mb-6 group">
+            <ChevronLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
           
-          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-white/[0.08] pb-6">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-slate-200 pb-6">
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-md bg-white/5 text-zinc-400 border border-white/10">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-1 rounded-sm bg-slate-100 text-slate-600 border border-slate-200">
                   {team.track} Track
                 </span>
-                <span className="text-green-400 font-bold text-sm bg-green-500/10 px-2.5 py-1 rounded-md border border-green-500/20">
+                <span className="text-green-700 font-bold text-sm bg-green-50 px-2.5 py-1 rounded-sm border border-green-200">
                   {openRound.name}
                 </span>
               </div>
-              <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent mb-2">
+              <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
                 {team.name}
               </h1>
-              <p className="text-zinc-400 max-w-2xl">{team.summary}</p>
+              <p className="text-slate-600 max-w-2xl">{team.summary}</p>
             </div>
             
             {team.pitchLink && (
@@ -91,7 +88,7 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
                 href={team.pitchLink.startsWith('http') ? team.pitchLink : `https://${team.pitchLink}`}
                 target="_blank" 
                 rel="noreferrer"
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 shadow-[0_0_20px_rgba(79,70,229,0.3)] transition-all whitespace-nowrap"
+                className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-md flex items-center gap-2 shadow-sm transition-colors whitespace-nowrap"
               >
                 View Pitch Deck
                 <ExternalLink className="w-4 h-4" />
@@ -104,17 +101,17 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Team Details Sidebar */}
           <div className="space-y-6">
-            <div className="backdrop-blur-xl bg-[#0d0d18]/80 border border-white/[0.08] p-6 rounded-2xl shadow-[0_0_20px_rgba(0,0,0,0.2)]">
-              <h3 className="font-bold text-white mb-4">Team Members</h3>
+            <div className="bg-white border border-slate-200 p-6 rounded-md shadow-sm">
+              <h3 className="font-bold text-slate-900 mb-4">Team Members</h3>
               <ul className="space-y-3">
                 {team.members.map((m: any, i: number) => (
                   <li key={i} className="flex items-center gap-3 text-sm">
-                    <div className="w-8 h-8 rounded-full bg-white/[0.05] border border-white/10 flex items-center justify-center font-bold text-zinc-400">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600">
                       {m.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <div className="text-white font-medium">{m.name}</div>
-                      {m.email && <div className="text-zinc-500 text-xs">{m.email}</div>}
+                      <div className="text-slate-900 font-medium">{m.name}</div>
+                      {m.email && <div className="text-slate-500 text-xs">{m.email}</div>}
                     </div>
                   </li>
                 ))}
@@ -124,14 +121,14 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
 
           {/* Scoring Form */}
           <div className="lg:col-span-2">
-            <div className="backdrop-blur-xl bg-[#0d0d18] border border-white/[0.08] p-6 md:p-8 rounded-2xl shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+            <div className="bg-white border border-slate-200 p-6 md:p-8 rounded-md shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <ShieldCheck className="w-6 h-6 text-indigo-400" />
-                <h2 className="text-2xl font-bold text-white">Scorecard</h2>
+                <ShieldCheck className="w-6 h-6 text-blue-800" />
+                <h2 className="text-2xl font-bold text-slate-900">Scorecard</h2>
               </div>
               
               {criteria.length === 0 ? (
-                <div className="text-center text-zinc-500 py-12 border border-white/[0.05] rounded-xl bg-white/[0.02]">
+                <div className="text-center text-slate-500 py-12 border border-slate-200 rounded-md bg-slate-50">
                   The administrator has not configured a rubric for this round yet.
                 </div>
               ) : (

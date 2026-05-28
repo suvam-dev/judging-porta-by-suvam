@@ -17,27 +17,30 @@ async function clearDatabase() {
     await mongoose.connect(MONGODB_URI!);
     console.log("Connected successfully.");
 
-    // Define the collections to clear
-    const collections = mongoose.connection.collections;
+    const db = mongoose.connection.db;
+    if (!db) {
+       console.error("No database connection available.");
+       process.exit(1);
+    }
+    
+    // Get all collections
+    const collections = await db.collections();
 
-    if (Object.keys(collections).length === 0) {
+    if (collections.length === 0) {
       console.log("No collections found in the database. Exiting...");
       process.exit(0);
     }
 
     console.log("WARNING: This will delete ALL documents in the following collections:");
-    for (const key in collections) {
-      console.log(` - ${key}`);
+    for (const collection of collections) {
+      console.log(` - ${collection.collectionName}`);
     }
 
-    // Give the user a moment to cancel if they want, but since it's a script we'll just execute.
-    // In a real scenario you might want a confirmation prompt, but for a dev script this is fine.
     console.log("\nClearing collections...");
 
-    for (const key in collections) {
-      const collection = collections[key];
+    for (const collection of collections) {
       await collection.deleteMany({});
-      console.log(`Cleared collection: ${key}`);
+      console.log(`Cleared collection: ${collection.collectionName}`);
     }
 
     console.log("\n✅ Database cleared successfully.");

@@ -46,14 +46,14 @@ export default function ScoringForm({
     }
   }, [state.success, router]);
 
-  if (showSuccess) {
+    if (showSuccess) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center animate-fade-in">
-        <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4 border border-green-500/30">
-          <CheckCircle2 className="w-8 h-8 text-green-400" />
+        <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-4 border border-green-200">
+          <CheckCircle2 className="w-8 h-8 text-green-600" />
         </div>
-        <h3 className="text-2xl font-bold text-white mb-2">Scores Saved Successfully</h3>
-        <p className="text-zinc-400">Redirecting you to the dashboard...</p>
+        <h3 className="text-2xl font-bold text-slate-900 mb-2">Scores Saved Successfully</h3>
+        <p className="text-slate-600">Redirecting you to the dashboard...</p>
       </div>
     );
   }
@@ -61,7 +61,7 @@ export default function ScoringForm({
   return (
     <form action={action} className="space-y-8">
       {state.error && (
-        <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm p-4 rounded-xl">
+        <div className="bg-red-50 border border-red-200 text-red-600 text-sm p-4 rounded-md">
           {state.error}
         </div>
       )}
@@ -74,20 +74,20 @@ export default function ScoringForm({
           const existing = existingScores.find((s) => s.criterionId === crit._id);
           
           return (
-            <div key={crit._id} className="p-5 rounded-xl border border-white/[0.05] bg-white/[0.02] hover:bg-white/[0.04] transition-colors relative group">
-              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/50 rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div key={crit._id} className="p-5 rounded-md border border-slate-200 bg-white hover:bg-slate-50 transition-colors relative group">
+              <div className="absolute top-0 left-0 w-1 h-full bg-blue-800 rounded-l-md opacity-0 group-hover:opacity-100 transition-opacity" />
               
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-bold text-indigo-400">#{crit.order}</span>
-                    <h4 className="text-lg font-bold text-white">{crit.name}</h4>
+                    <span className="text-xs font-bold text-blue-800">#{crit.order}</span>
+                    <h4 className="text-lg font-bold text-slate-900">{crit.name}</h4>
                   </div>
-                  <p className="text-sm text-zinc-400">{crit.description}</p>
+                  <p className="text-sm text-slate-600">{crit.description}</p>
                 </div>
                 
                 <div className="sm:text-right shrink-0">
-                  <div className="text-xs text-zinc-500 uppercase tracking-wider mb-1">Score (0-{crit.max})</div>
+                  <div className="text-xs text-slate-500 uppercase tracking-wider mb-1">Score (0-{crit.max})</div>
                   <input
                     type="number"
                     name={`score_${crit._id}`}
@@ -96,7 +96,7 @@ export default function ScoringForm({
                     step="0.1"
                     defaultValue={existing?.value}
                     required
-                    className="w-full sm:w-24 bg-black/40 border border-white/[0.1] text-white rounded-lg px-3 py-2 text-center text-lg font-bold focus:border-indigo-500 focus:bg-black/60 outline-none transition-all shadow-inner placeholder:text-zinc-700"
+                    className="w-full sm:w-24 bg-white border border-slate-300 text-slate-900 rounded-md px-3 py-2 text-center text-lg font-bold focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400"
                     placeholder={`/${crit.max}`}
                   />
                 </div>
@@ -108,7 +108,7 @@ export default function ScoringForm({
                   name={`comment_${crit._id}`}
                   defaultValue={existing?.comment || ""}
                   placeholder="Optional comment for this criterion..."
-                  className="w-full bg-black/20 border border-white/[0.05] text-white rounded-lg px-3 py-2 text-sm focus:border-indigo-500/50 outline-none transition-all placeholder:text-zinc-600"
+                  className="w-full bg-white border border-slate-300 text-slate-900 rounded-md px-3 py-2 text-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -116,11 +116,11 @@ export default function ScoringForm({
         })}
       </div>
 
-      <div className="pt-4 border-t border-white/[0.08]">
+      <div className="pt-4 border-t border-slate-200">
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-bold text-lg shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] transition-all"
+          className="w-full py-4 rounded-md bg-blue-800 hover:bg-blue-900 disabled:opacity-50 text-white font-bold text-lg shadow-sm transition-colors"
         >
           {isPending ? "Saving Scores..." : existingScores.length > 0 ? "Update Scores" : "Submit Scores"}
         </button>
