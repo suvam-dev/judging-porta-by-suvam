@@ -149,7 +149,7 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
                   existingScores={existingScores.map(s => ({
                     criterionId: s.criterionId.toString(),
                     value: s.value,
-                    comment: s.comment,
+                    comment: s.comment || null,
                   }))}
                 />
               )}
