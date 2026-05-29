@@ -81,20 +81,32 @@ export async function POST(req: Request) {
     // If role is participant, create a Team document for them
     if (role === "participant" && projectName) {
       const { Team } = await import("@/models/Team");
-      const newTeam = new Team({
-        name: projectName,
-        track: track,
-        members: [{ name: `${firstName} ${lastName}`, email }],
-        pitchTitle: projectName,
-        summary: "No summary provided",
-        pitchLink: pptLink,
-        ownerUserId: newUser._id
-      });
-      await newTeam.save();
-      
-      // Link user to team
-      newUser.teamId = newTeam._id;
-      await newUser.save();
+      try {
+        const newTeam = new Team({
+          name: projectName,
+          track: track,
+          members: [{ name: `${firstName} ${lastName}`, email }],
+          pitchTitle: projectName,
+          summary: "No summary provided",
+          pitchLink: pptLink || null,
+          ownerUserId: newUser._id
+        });
+        await newTeam.save();
+
+        // Link user to team
+        newUser.teamId = newTeam._id;
+        await newUser.save();
+      } catch (teamError: any) {
+        // Rollback: delete the orphaned user so they can re-register correctly
+        await newUser.deleteOne();
+        const isDuplicate = teamError.code === 11000;
+        return NextResponse.json(
+          { message: isDuplicate
+              ? `A team named "${projectName}" already exists. Please choose a different project name.`
+              : "Failed to create your team. Please try again." },
+          { status: 400 }
+        );
+      }
     }
 
     return NextResponse.json(

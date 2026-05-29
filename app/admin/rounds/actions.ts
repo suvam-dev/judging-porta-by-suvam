@@ -28,6 +28,7 @@ export async function createRound(prevState: any, formData: FormData) {
 
     await audit(actor, "round.create", { type: "Round", id: round._id }, { name, order });
     revalidatePath("/admin/rounds");
+    revalidatePath("/admin/rubric"); // Rubric page needs to know rounds now exist
     return { error: null };
   } catch (error: any) {
     return { error: error.message || "An unexpected error occurred." };
@@ -74,6 +75,7 @@ export async function updateRoundStatus(
       { from: previousStatus, to: newStatus },
     );
     revalidatePath("/admin/rounds");
+    revalidatePath("/admin/rubric"); // Keep rubric in sync with round status changes
     return { error: null };
   } catch (error: any) {
     return { error: error.message || "An unexpected error occurred." };
