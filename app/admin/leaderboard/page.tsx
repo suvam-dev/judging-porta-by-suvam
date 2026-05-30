@@ -3,6 +3,8 @@ import { Round } from "@/models/Round";
 import { calculateLeaderboard } from "@/lib/scoring";
 import { Trophy } from "lucide-react";
 import FilterBar from "./FilterBar";
+import { Suspense } from "react";
+import { LeaderboardContentSkeleton } from "@/components/Skeletons";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +12,7 @@ export const metadata = {
   title: "Live Leaderboard | Empresario",
 };
 
-export default async function LeaderboardPage({
+async function LeaderboardContent({
   searchParams,
 }: {
   searchParams: Promise<{ round?: string; track?: string }>;
@@ -33,30 +35,17 @@ export default async function LeaderboardPage({
   }
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Header & Filters */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-yellow-600" /> Live Leaderboard
-          </h2>
-          <p className="text-slate-500 mt-2">
-            Real-time algorithmically weighted scores.
-          </p>
-        </div>
+    <>
+      <FilterBar
+        rounds={rounds.map((r) => ({
+          id: r._id.toString(),
+          name: r.name,
+          status: r.status,
+        }))}
+        selectedRoundId={selectedRoundId}
+        selectedTrack={selectedTrack}
+      />
 
-        <FilterBar
-          rounds={rounds.map((r) => ({
-            id: r._id.toString(),
-            name: r.name,
-            status: r.status,
-          }))}
-          selectedRoundId={selectedRoundId}
-          selectedTrack={selectedTrack}
-        />
-      </div>
-
-      {/* Leaderboard Table */}
       <div className="bg-white border border-slate-200 rounded-md overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm whitespace-nowrap">
@@ -103,7 +92,7 @@ export default async function LeaderboardPage({
                       </div>
                     </td>
                     <td className="px-6 py-5 text-right">
-                      <div className="text-2xl font-black bg-gradient-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent group-hover:from-blue-800 group-hover:to-blue-600 transition-all">
+                      <div className="text-2xl font-black bg-linear-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent group-hover:from-blue-800 group-hover:to-blue-600 transition-all">
                         {entry.finalScore.toFixed(2)}
                       </div>
                     </td>
@@ -114,7 +103,29 @@ export default async function LeaderboardPage({
           </table>
         </div>
       </div>
+    </>
+  );
+}
 
+export default function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ round?: string; track?: string }>;
+}) {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-3">
+          <Trophy className="w-8 h-8 text-yellow-600" /> Live Leaderboard
+        </h2>
+        <p className="text-slate-500 mt-2">
+          Real-time algorithmically weighted scores.
+        </p>
+      </div>
+
+      <Suspense fallback={<LeaderboardContentSkeleton />}>
+        <LeaderboardContent searchParams={searchParams} />
+      </Suspense>
     </div>
   );
 }
