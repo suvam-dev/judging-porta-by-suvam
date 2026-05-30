@@ -4,6 +4,8 @@ import { User } from "@/models/User";
 import { approveTeam, rejectTeam } from "./actions";
 import { CheckCircle, XCircle, Search, User as UserIcon } from "lucide-react";
 import ActionButton from "@/components/ActionButton";
+import { Suspense } from "react";
+import { TableSkeleton } from "@/components/Skeletons";
 
 export const dynamic = "force-dynamic";
 
@@ -11,9 +13,9 @@ export const metadata = {
   title: "Manage Teams | Empresario",
 };
 
-export default async function TeamsPage() {
+async function TeamsList() {
   await dbConnect();
-  
+
   // Fetch all teams and populate the owner's info
   const teams = await Team.find({}).populate("ownerUserId", "firstName lastName email").sort({ createdAt: -1 });
 
@@ -112,6 +114,25 @@ export default async function TeamsPage() {
           </table>
         </div>
       </div>
+    </div>
+  );
+}
+
+export default function TeamsPage() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      {/* Header */}
+      <div>
+        <h2 className="text-3xl font-bold tracking-tight text-slate-900">Manage Teams</h2>
+        <p className="text-slate-500 mt-2">
+          Review participant applications, approve valid teams, and manage their portal access.
+        </p>
+      </div>
+
+      {/* Teams Table with Skeleton */}
+      <Suspense fallback={<TableSkeleton rows={8} cols={5} />}>
+        <TeamsList />
+      </Suspense>
     </div>
   );
 }

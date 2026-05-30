@@ -40,3 +40,9 @@ passwrods.txt
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ai-generated docs
+DEPLOYMENT_STRATEGY.md
+SKELETON_SCREENS.md
+SKILL.md
+SYSTEM_DESIGN.html
