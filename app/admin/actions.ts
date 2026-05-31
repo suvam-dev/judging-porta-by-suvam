@@ -21,8 +21,8 @@ export async function getDashboardStats() {
     const totalJudges = await User.countDocuments({ role: "judge" });
     const activeJudges = await User.countDocuments({ role: "judge", status: "active" });
     
-    // We'll consider a round "active" if it is marked "open"
-    const openRound = await Round.findOne({ status: "open" });
+    // Fetch ALL open rounds so simultaneous rounds are shown
+    const openRounds = await Round.find({ status: "open" }).sort({ order: 1 });
     const totalTeams = await Team.countDocuments();
 
     return {
@@ -31,7 +31,7 @@ export async function getDashboardStats() {
       totalJudges,
       activeJudges,
       totalTeams,
-      openRoundName: openRound ? openRound.name : "No Open Round",
+      openRoundNames: openRounds.map((r) => r.name),
     };
   } catch (error) {
     console.error("Failed to fetch dashboard stats:", error);
@@ -41,7 +41,7 @@ export async function getDashboardStats() {
       totalJudges: 0,
       activeJudges: 0,
       totalTeams: 0,
-      openRoundName: "Error loading",
+      openRoundNames: [],
     };
   }
 }

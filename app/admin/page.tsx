@@ -50,11 +50,24 @@ async function DashboardStats() {
       {/* Active Round Card */}
       <div className="bg-white border border-slate-200 rounded-md p-6 shadow-sm">
         <div className="flex justify-between items-start mb-4">
-          <div>
-            <p className="text-sm font-medium text-slate-600">Current Round</p>
-            <h3 className="text-xl font-bold text-slate-900 mt-1 leading-tight">{stats.openRoundName}</h3>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-slate-600">
+              {stats.openRoundNames.length > 1 ? "Active Rounds" : "Current Round"}
+            </p>
+            {stats.openRoundNames.length === 0 ? (
+              <h3 className="text-xl font-bold text-slate-400 mt-1 leading-tight">No Open Round</h3>
+            ) : (
+              <div className="mt-1 space-y-1">
+                {stats.openRoundNames.map((name) => (
+                  <div key={name} className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 shrink-0" />
+                    <span className="text-base font-bold text-slate-900 leading-tight truncate">{name}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="w-10 h-10 rounded-md bg-blue-50 flex items-center justify-center border border-blue-100 shrink-0">
+          <div className="w-10 h-10 rounded-md bg-blue-50 flex items-center justify-center border border-blue-100 shrink-0 ml-3">
             <Clock className="w-5 h-5 text-blue-800" />
           </div>
         </div>

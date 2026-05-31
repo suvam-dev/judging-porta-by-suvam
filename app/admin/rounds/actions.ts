@@ -45,13 +45,6 @@ export async function updateRoundStatus(
     const actor = await requireAdmin();
     await dbConnect();
 
-    if (newStatus === "open") {
-      await Round.updateMany(
-        { status: "open" },
-        { $set: { status: "closed", scoresEditable: false } },
-      );
-    }
-
     const round = await Round.findById(roundId);
     if (!round) return { error: "Round not found" };
 

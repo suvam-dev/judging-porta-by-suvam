@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import dbConnect from "@/lib/dbConnect";
 import { User } from "@/models/User";
 import { Round } from "@/models/Round";
@@ -11,7 +12,13 @@ import { ChevronLeft, ExternalLink, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import ScoringForm from "./ScoringForm";
 
-export default async function ScoringPage({ params }: { params: Promise<{ teamId: string }> }) {
+export default async function ScoringPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ teamId: string }>;
+  searchParams: Promise<{ roundId?: string }>;
+}) {
   const session = await getSession();
   if (!session || session.role !== "judge") {
     redirect("/login");
@@ -25,15 +32,47 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
   }
 
   const { teamId } = await params;
+  const { roundId: roundIdParam } = await searchParams;
+
+  if (roundIdParam && !mongoose.Types.ObjectId.isValid(roundIdParam)) {
+    redirect("/judge");
+  }
 
   const team = await Team.findById(teamId);
   if (!team) {
     return <div className="text-white text-center mt-20">Team not found</div>;
   }
 
-  const openRound = await Round.findOne({ status: "open" });
+  let openRound: Awaited<ReturnType<typeof Round.findOne>> | null = null;
+
+  if (roundIdParam) {
+    // Caller supplied an explicit round — verify it is still open
+    openRound = await Round.findOne({ _id: roundIdParam, status: "open" });
+  } else {
+    // Fallback: find any open round where this judge has an assignment for this team
+    const assignment = await Assignment.findOne({
+      judgeId: session.userId,
+      teamId: team._id,
+    }).populate({
+      path: "roundId",
+      match: { status: "open" },
+    });
+    if (assignment && assignment.roundId) {
+      openRound = assignment.roundId as any;
+    }
+  }
+
   if (!openRound) {
-    return <div className="text-white text-center mt-20">No active round. Scoring is closed.</div>;
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-900 p-6">
+        <div className="max-w-md text-center bg-white border border-slate-200 p-8 rounded-md shadow-sm">
+          <p className="text-slate-600 font-medium">No active round. Scoring is closed.</p>
+          <Link href="/judge" className="mt-4 inline-block text-blue-800 font-semibold text-sm hover:underline">
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   const assignment = await Assignment.findOne({
@@ -43,13 +82,20 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
   });
 
   if (!assignment) {
-    return <div className="text-white text-center mt-20">You are not assigned to this team.</div>;
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-900 p-6">
+        <div className="max-w-md text-center bg-white border border-slate-200 p-8 rounded-md shadow-sm">
+          <p className="text-slate-600 font-medium">You are not assigned to this team for this round.</p>
+          <Link href="/judge" className="mt-4 inline-block text-blue-800 font-semibold text-sm hover:underline">
+            Back to Dashboard
+          </Link>
+        </div>
+      </div>
+    );
   }
 
-  // Fetch Rubric
   const criteria = await Criterion.find({ roundId: openRound._id }).sort({ order: 1 });
 
-  // Fetch Existing Scores for this Judge/Team/Round
   const existingScores = await Score.find({
     judgeId: session.userId,
     teamId: team._id,
@@ -59,14 +105,14 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 p-6 md:p-12 font-sans overflow-hidden">
       <div className="max-w-5xl mx-auto space-y-8 animate-fade-in">
-        
+
         {/* Header */}
         <div>
           <Link href="/judge" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors mb-6 group">
             <ChevronLeft className="w-4 h-4" />
             Back to Dashboard
           </Link>
-          
+
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 border-b border-slate-200 pb-6">
             <div>
               <div className="flex items-center gap-3 mb-3">
@@ -82,11 +128,11 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
               </h1>
               <p className="text-slate-600 max-w-2xl">{team.summary}</p>
             </div>
-            
+
             {team.pitchLink && (
-              <a 
-                href={team.pitchLink.startsWith('http') ? team.pitchLink : `https://${team.pitchLink}`}
-                target="_blank" 
+              <a
+                href={team.pitchLink.startsWith("http") ? team.pitchLink : `https://${team.pitchLink}`}
+                target="_blank"
                 rel="noreferrer"
                 className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-md flex items-center gap-2 shadow-sm transition-colors whitespace-nowrap"
               >
@@ -126,16 +172,16 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
                 <ShieldCheck className="w-6 h-6 text-blue-800" />
                 <h2 className="text-2xl font-bold text-slate-900">Scorecard</h2>
               </div>
-              
+
               {criteria.length === 0 ? (
                 <div className="text-center text-slate-500 py-12 border border-slate-200 rounded-md bg-slate-50">
                   The administrator has not configured a rubric for this round yet.
                 </div>
               ) : (
-                <ScoringForm 
-                  teamId={team._id.toString()} 
-                  roundId={openRound._id.toString()} 
-                  criteria={criteria.map(c => ({
+                <ScoringForm
+                  teamId={team._id.toString()}
+                  roundId={openRound._id.toString()}
+                  criteria={criteria.map((c) => ({
                     _id: c._id.toString(),
                     name: c.name,
                     description: c.description || "",
@@ -143,7 +189,7 @@ export default async function ScoringPage({ params }: { params: Promise<{ teamId
                     weight: c.weight,
                     order: c.order,
                   }))}
-                  existingScores={existingScores.map(s => ({
+                  existingScores={existingScores.map((s) => ({
                     criterionId: s.criterionId.toString(),
                     value: s.value,
                     comment: s.comment || null,
